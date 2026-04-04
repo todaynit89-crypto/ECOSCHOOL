@@ -1,0 +1,5 @@
+{
+  "name": "Remix: Remix: 학교 탄소배출량 행당강령 데시보드",
+  "description": "학교 환경 데이터를 분석하여 학생 맞춤형 탄소중립 행동 지침을 생성하는 대시보드",
+  "requestFramePermissions": []
+}

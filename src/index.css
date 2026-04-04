@@ -1,0 +1,19 @@
+@import "tailwindcss";
+
+@theme {
+  @keyframes shimmer {
+    from { transform: translateX(-100%); }
+    to { transform: translateX(100%); }
+  }
+}
+
+@media print {
+  body {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  @page {
+    size: landscape;
+    margin: 0;
+  }
+}
