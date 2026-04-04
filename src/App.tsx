@@ -29,8 +29,27 @@ export default function App() {
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<GeneratedResult | null>(null);
   const [showInfoModal, setShowInfoModal] = useState(false);
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const resultRef = useRef<HTMLDivElement>(null);
   const captureRef = useRef<HTMLDivElement>(null); // For image export
+
+  useEffect(() => {
+    const handleBeforeInstallPrompt = (e: Event) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+    };
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+  }, []);
+
+  const handleInstallClick = async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    if (outcome === 'accepted') {
+      setDeferredPrompt(null);
+    }
+  };
 
   useEffect(() => {
     if (result && resultRef.current) {
@@ -344,13 +363,25 @@ export default function App() {
               <p className="text-xs text-gray-500 font-medium leading-tight">탄소중립 행동 지침 생성기</p>
             </div>
           </div>
-          <button 
-            onClick={() => setShowInfoModal(true)}
-            className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-full transition-colors"
-            title="계산 기준 보기"
-          >
-            <Info className="w-5 h-5" />
-          </button>
+          <div className="flex items-center gap-2">
+            {deferredPrompt && (
+              <button
+                onClick={handleInstallClick}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-green-100 text-green-700 font-bold rounded-full hover:bg-green-200 transition-colors text-sm"
+                title="앱 설치하기"
+              >
+                <Download className="w-4 h-4" />
+                <span className="hidden sm:inline">앱 설치</span>
+              </button>
+            )}
+            <button 
+              onClick={() => setShowInfoModal(true)}
+              className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-full transition-colors"
+              title="계산 기준 보기"
+            >
+              <Info className="w-5 h-5" />
+            </button>
+          </div>
         </div>
 
         <div className="space-y-4 flex-1">
