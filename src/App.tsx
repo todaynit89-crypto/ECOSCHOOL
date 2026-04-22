@@ -1,11 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Leaf, Zap, Recycle, Utensils, Car, Monitor, Cloud, Presentation, Loader2, CheckCircle2, Sun, TreePine, Snowflake, Globe2, Coins, ArrowRight, Wind, Calendar, Sprout, Droplets, Smartphone, ShoppingBag, ArrowDown, AlertCircle, Download, Award, Share2, Printer, Thermometer, Info, X } from 'lucide-react';
+import { Leaf, Zap, Recycle, Utensils, Car, Monitor, Cloud, Presentation, Loader2, CheckCircle2, Sun, TreePine, Snowflake, Globe2, Coins, ArrowRight, Wind, Calendar, Sprout, Droplets, Smartphone, ShoppingBag, ArrowDown, AlertCircle, Download, Award, Share2, Printer, Thermometer, Info, X, Shirt, Carrot } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import html2canvas from 'html2canvas';
 import confetti from 'canvas-confetti';
 
 type SchoolLevel = '초등학교' | '중학교' | '고등학교';
-type Category = 'energy' | 'temperature' | 'resource' | 'meals' | 'transport' | 'water' | 'digital' | 'consumption' | 'custom';
+type Category = 'energy' | 'temperature' | 'resource' | 'meals' | 'transport' | 'water' | 'digital' | 'consumption' | 'clothing' | 'vegetarian' | 'planting' | 'recycling' | 'custom';
 type Theme = 'chalkboard' | 'sky' | 'forest';
 
 interface GeneratedResult {
@@ -74,6 +74,14 @@ export default function App() {
     digitalReduction: '',
     consumptionCurrent: '',
     consumptionReduction: '',
+    clothingCurrent: '',
+    clothingReduction: '',
+    vegetarianCurrent: '',
+    vegetarianReduction: '',
+    plantingCurrent: '',
+    plantingReduction: '',
+    recyclingCurrent: '',
+    recyclingReduction: '',
     customName: '',
     customUnit: '',
     customCurrent: '',
@@ -102,6 +110,14 @@ export default function App() {
       digitalReduction: '50',
       consumptionCurrent: '5',
       consumptionReduction: '2',
+      clothingCurrent: '10',
+      clothingReduction: '3',
+      vegetarianCurrent: '30',
+      vegetarianReduction: '10',
+      plantingCurrent: '10',
+      plantingReduction: '5',
+      recyclingCurrent: '20',
+      recyclingReduction: '10',
       customName: '플라스틱 컵',
       customUnit: '개',
       customCurrent: '10',
@@ -124,79 +140,115 @@ export default function App() {
     let effect = '';
     let actionItems: string[] = [];
 
+    const isElem = schoolLevel === '초등학교';
+    const isMid = schoolLevel === '중학교';
+    const isHigh = schoolLevel === '고등학교';
+
     switch (category) {
       case 'energy':
         carbonPerUnit = 0.4781;
         yearlyMultiplier = 12; // 월간 -> 연간
         visualTheme = 'money';
-        message = '에너지 절약으로 지구를 시원하게! ⚡';
-        effect = '우리 반의 전력 사용량을 줄여 온실가스 배출을 크게 감소시켰습니다.';
-        actionItems = ['빈 교실 불 끄기', '사용하지 않는 플러그 뽑기', '자연 채광 활용하기'];
+        message = isElem ? '전기 절약으로 지구를 시원하게! ⚡' : isMid ? '에너지 절약, 우리 반부터 시작! ⚡' : '에너지 절약 실천, 지구를 위한 기본입니다 ⚡';
+        effect = isElem ? '빈 교실의 불을 끄고 전기를 아끼면 북극곰의 집을 지켜줄 수 있어요.' : isMid ? '우리 반의 전력 사용량을 줄여 온실가스 배출을 크게 감소시켰습니다.' : '불필요한 전력 소모를 줄여 국가 에너지망 부하를 낮추고 탄소 배출을 억제합니다.';
+        actionItems = isElem ? ['교실 나갈 때 불 끄기', '컴퓨터 콘센트 빼기', '햇빛으로 교실 밝히기'] : isMid ? ['빈 교실 불 끄기', '사용하지 않는 플러그 뽑기', '자연 채광 활용하기'] : ['이동 수업 시 부분 소등하기', '대기전력 차단 멀티탭 사용하기', '낮 시간 창측 조명 소등하기'];
         break;
       case 'temperature':
         carbonPerUnit = 0.5; // 학급당 1도 조절 시 하루 약 0.5kg 절감 추정
         yearlyMultiplier = 100; // 냉난방 가동일 약 100일
         visualTheme = 'ice';
-        message = '적정 온도 유지로 북극곰을 살려요! 🐻‍❄️';
-        effect = '우리 반 냉난방기 온도를 조절해 에너지를 절약하고 북극의 얼음을 지킵니다.';
-        actionItems = ['여름철 26도, 겨울철 20도 유지하기', '냉난방기 가동 시 창문 닫기', '계절에 맞는 옷차림 하기'];
+        message = isElem ? '적정 온도 유지로 펭귄을 살려요! 🐧' : isMid ? '적정 온도 맞추기, 센스 있는 우리 반! 🌡️' : '실내 적정 온도 유지로 기후위기 대응 🌡️';
+        effect = isElem ? '냉난방 온도를 조금만 양보하면 북극의 얼음이 녹는 걸 막을 수 있어요.' : isMid ? '냉난방기 온도를 조절해 에너지를 절약하고 온실가스 배출을 줄입니다.' : '과도한 냉난방기 사용을 줄임으로써 에너지 낭비를 막고 화석연료 연소를 최소화합니다.';
+        actionItems = isElem ? ['여름엔 시원한 옷차림', '겨울엔 내복 입기', '에어컨 켤 때 창문 닫기'] : isMid ? ['여름철 26도, 겨울철 20도 유지하기', '냉난방기 가동 시 창문 닫기', '계절에 맞는 옷차림 하기'] : ['계절별 법정 권장온도 준수하기', '주기적인 쾌적도 점검 및 환기', '교복 동복/하복 유연하게 착용하기'];
         break;
       case 'resource':
         carbonPerUnit = 0.00525;
         yearlyMultiplier = 12; // 월간 -> 연간
         visualTheme = 'tree';
-        message = '종이 절약으로 숲을 보호해요! 🌲';
-        effect = '나의 종이 사용을 줄여 나무를 베는 것을 막고 숲을 보존합니다.';
-        actionItems = ['이면지 활용하기', '태블릿/노트북으로 디지털 필기하기', '꼭 필요한 인쇄만 양면으로 하기'];
+        message = isElem ? '종이 아껴서 나무를 보호해요! 🌳' : isMid ? '종이 낭비 줄이고 숲을 만들자! 🌲' : '자원 순환 시스템 구축, 페이퍼리스 실천 🌲';
+        effect = isElem ? '우리가 쓰는 종이를 줄이면 숲 속 작은 동물들의 집을 지킬 수 있어요.' : isMid ? '나의 종이 사용을 줄여 나무가 베어지는 것을 막고 숲을 보존합니다.' : 'A4 용지 등 일회성 자재 소모를 줄여 목재 생산으로 인한 산림 파괴를 방지합니다.';
+        actionItems = isElem ? ['이면지 모아서 그림 그리기', '알림장은 스마트폰으로 확인하기', '딱 필요한 인쇄만 양면으로!'] : isMid ? ['이면지 활용하기', '태블릿/노트북으로 디지털 필기하기', '꼭 필요한 인쇄만 양면으로 하기'] : ['학습 자료 디지털 배포 및 제출 활용', '이면지 수거함 체계적 관리', '부서/동아리별 인쇄 쿼터제 도입'];
         break;
       case 'meals':
         carbonPerUnit = 0.00165; // 1.65 kgCO2/kg -> 0.00165 kgCO2/g
         yearlyMultiplier = 200; // 급식일 약 200일
         visualTheme = 'earth';
-        message = '잔반 없는 날, 지구가 웃는 날! 🍽️';
-        effect = '내가 남기지 않은 음식물이 메탄가스 발생을 막아줍니다.';
-        actionItems = ['먹을 만큼만 배식받기', '편식하지 않고 골고루 먹기', '잔반 없는 날 적극 참여하기'];
+        message = isElem ? '잔반 없는 날, 지구가 웃는 날! 😋' : isMid ? '다 먹으면 영양도 챙기고 지구도 살리고! 🍽️' : '푸드 마일리지 감소와 음식물 쓰레기 제로 🍽️';
+        effect = isElem ? '내가 남기지 않은 음식물 덕분에 나쁜 냄새와 가스가 생기지 않아요.' : isMid ? '잔반을 남기지 않아 음식물 쓰레기 처리 시 발생하는 메탄가스를 막아줍니다.' : '음식물 폐기물 처리 과정의 에너지를 절감하고 매립 가스 배출을 차단합니다.';
+        actionItems = isElem ? ['먹을 수 있는 만큼만 받기', '편식하지 않고 골고루 먹기', '급식 다 먹고 스티커 받기'] : isMid ? ['먹을 만큼만 배식받기', '급식 챌린지 적극 참여하기', '잔반 없는 날 이벤트 열기'] : ['자율 배식대 적정량 활용', '식단 선호도 조사로 잔반 원천 차단', '음식물 폐기 계량 시스템 도입 참여'];
         break;
       case 'transport':
         carbonPerUnit = 1.05; // 왕복 5km 기준 (5 * 0.21)
         yearlyMultiplier = 200; // 등교일 약 200일
         visualTheme = 'earth';
-        message = '두 발로 걷고, 자전거 타고! 🚲';
-        effect = '차량 대신 도보나 대중교통을 이용해 대기 오염을 막고 탄소 배출을 줄입니다.';
-        actionItems = ['가까운 거리는 걷거나 자전거 타기', '대중교통 이용하기', '스쿨버스 이용하기'];
+        message = isElem ? '씩씩하게 걸어서 학교 가요! 🚶‍♂️' : isMid ? '스쿨버스랑 도보로 등교하는 힙한 일상! 🚲' : '친환경 모빌리티 및 대중교통 이용 활성화 🚌';
+        effect = isElem ? '부모님 차 대신 직접 걸어가면 공기가 아주 깨끗해져요.' : isMid ? '승용차 대신 도보나 대중교통을 이용해 미세먼지와 대기 오염을 막습니다.' : '내연기관 차량 탑승을 지양함으로써 미세먼지 원인 물질과 온실가스를 감축합니다.';
+        actionItems = isElem ? ['친구들과 걸어서 등교하기', '자전거로 안전하게 다니기', '비 오는 날만 차 타기'] : isMid ? ['가까운 거리는 걷거나 자전거 타기', '등하교 시 대중교통 이용하기', '부모님께 친환경 운전 권유하기'] : ['친환경 대중교통 노선 숙지 및 활용', '교내 자전거 거치대 활용', '근거리 통학 보행 환경 개선 캠페인'];
         break;
       case 'water':
         carbonPerUnit = 0.332;
         yearlyMultiplier = 12; // 월간 -> 연간
         visualTheme = 'ice';
-        message = '물 한 방울도 소중하게! 💧';
-        effect = '나의 물 절약이 수자원을 보호하고 정수 과정의 에너지를 아낍니다.';
-        actionItems = ['양치할 때 양치컵 사용하기', '비누칠 할 때 물 끄기', '변기 수조에 벽돌/페트병 넣기'];
+        message = isElem ? '물 한 방울도 보석처럼 아껴요! 💧' : isMid ? '물 절약, 작은 습관이 만드는 큰 변화! 💧' : '수자원 보존 및 정수 에너지 감축 💧';
+        effect = isElem ? '양치할 때 물을 잠그면 깨끗한 물을 낭비하지 않고 지킬 수 있어요.' : isMid ? '나의 물 절약이 수자원을 보호하고 수돗물을 만드는 데 드는 전기를 아낍니다.' : '정수 및 하수 처리 시설 작동에 소요되는 전력 낭비를 방지하여 환경 유해성을 낮춥니다.';
+        actionItems = isElem ? ['양치할 때 꼭 양치컵 쓰기', '비누칠 할 때는 물 잠그기', '손 씻을 때 물 살짝만 틀기'] : isMid ? ['양치컵 사용 생활화', '샤워 시간 5분 줄이기', '학교 식수대 물 낭비하지 않기'] : ['화장실 절수형 기기 교체 건의', '실험/실습 시 물 사용량 최소화', '생활하수 저감 실천'];
         break;
       case 'digital':
         carbonPerUnit = 0.004;
         yearlyMultiplier = 1; // 누적 데이터 삭제는 1회성
         visualTheme = 'tree';
-        message = '디지털 다이어트로 탄소 다이어트! 📱';
-        effect = '내 메일함의 불필요한 데이터를 지워 데이터센터의 전력 사용을 줄입니다.';
-        actionItems = ['스팸 메일 차단 및 불필요한 메일 삭제하기', '동영상 스트리밍 해상도 낮추기', '사용하지 않는 앱 삭제하기'];
+        message = isElem ? '인터넷 쓰레기통도 비워주세요! 📱' : isMid ? '디지털 다이어트로 폰도 가볍게, 지구도 가볍게! 📧' : '데이터 저장소 최적화로 디지털 탄소발자국 감축 💻';
+        effect = isElem ? '안 보는 메일과 사진을 지우면 컴퓨터 마을의 전기를 아낄 수 있대요.' : isMid ? '메일함의 불필요한 데이터를 지워 거대한 데이터센터의 전력 사용을 줄입니다.' : '스팸 데이터 보관에 지속 소모되는 데이터센터 클라우드 서버의 탄소 배출을 억제합니다.';
+        actionItems = isElem ? ['안 하는 게임 지우기', '사진첩 정리하기', '이메일 휴지통 비우기'] : isMid ? ['스팸 메일 차단 및 불필요한 메일 삭제', '동영상 스트리밍 해상도 조절', '카톡 휴지통 주기적으로 비우기'] : ['클라우드 불필요한 백업 파일 삭제', '스크린 타임 줄이기 캠페인', '스트리밍 대신 다운로드 후 시청'];
         break;
       case 'consumption':
         carbonPerUnit = 0.086; // 2.15 kgCO2/kg * 0.04 kg/item
         yearlyMultiplier = 40; // 학사일정 약 40주
         visualTheme = 'earth';
-        message = '일회용품 NO, 다회용품 YES! 텀블러 챙기기 🥤';
-        effect = '나의 다회용품 사용이 플라스틱 쓰레기를 줄이고 해양 생태계를 보호합니다.';
-        actionItems = ['개인 텀블러 사용하기', '장바구니 챙기기', '플라스틱 빨대 사용하지 않기'];
+        message = isElem ? '내 전용 물컵을 사용해요! 🥤' : isMid ? '일회용품 플라스틱 NO, 내 텀블러 YES! 🥤' : '일회용품 제로화 및 다회용품 공유 체계 ♻️';
+        effect = isElem ? '일회용 플라스틱을 안 쓰면 바닷속 거북이와 고래가 아프지 않아요.' : isMid ? '다회용품 사용 습관이 플라스틱 쓰레기를 줄이고 해양 생태계를 보호합니다.' : '무분별한 플라스틱 소모를 차단하고 석유화학 공정에서 발생하는 탄소를 저감합니다.';
+        actionItems = isElem ? ['내 텀블러(물통) 들고 다니기', '플라스틱 빨대 안 쓰기', '물건 소중하게 오래 쓰기'] : isMid ? ['개인 텀블러 사용하기', '분리수거 철저히 하기', '학교 매점갈 때 장바구니 챙기기'] : ['교내 텀블러 세척기 도입 건의', '친환경 생분해 제품 우선 소비', '제로웨이스트 소비문화 확산'];
+        break;
+      case 'clothing':
+        carbonPerUnit = 15; // 1벌 당 약 15 kgCO2e
+        yearlyMultiplier = 1; // 1회성
+        visualTheme = 'earth';
+        message = isElem ? '작아진 옷은 깨끗하게 물려줘요! 👕' : isMid ? '패스트 패션 탈출! 교복 물려 입기 👗' : '의류 리사이클링 및 제로웨이스트 패션 실천 👔';
+        effect = isElem ? '새 옷을 만드는 데 드는 많은 에너지와 물을 아껴서 환경을 살려요.' : isMid ? '버려지는 옷을 줄이고 교복을 재사용하면 새 옷을 만들 때 나오는 탄소를 막아요.' : '의류 생산 공정의 환경 오염을 피하고 폐섬유 소각으로 인한 유독 물질 발생을 억제합니다.';
+        actionItems = isElem ? ['형, 누나 옷 예쁘게 물려입기', '동생에게 작아진 옷 주기', '옷 깨끗하게 입기'] : isMid ? ['졸업생 교복 물려받기/주기', '유행타는 옷 충동 구매 피하기', '옷 수선해서 오래 입기'] : ['교내 교복 나눔 장터 자체 기획', '빈티지/세컨핸드 의류 활용', '친환경 소재 의류 브랜드 선호'];
+        break;
+      case 'vegetarian':
+        carbonPerUnit = 1.5; // 고기 없는 한 끼당 약 1.5 kgCO2e 감축
+        yearlyMultiplier = 40; // 주 1회 실천 시 (연 약 40주)
+        visualTheme = 'earth';
+        message = isElem ? '고기 없는 식단도 맛있는 마법! 🥕' : isMid ? '지구를 위한 지구인 식단, 채식 DAY! 🥗' : '저탄소 식단 전환을 통한 가축 메탄가스 감축 🥦';
+        effect = isElem ? '방귀 뀌는 소를 조금 덜 키워도 되어서 지구가 뜨거워지는 걸 막아줘요.' : isMid ? '육류 소비를 줄이면 소나 돼지를 기르며 생기는 거대한 양의 온실가스를 직접 줄일 수 있어요.' : '축산업에서 다량 배출되는 메탄과 사료 운송에 소모되는 화석연료 연소를 근본적으로 감소시킵니다.';
+        actionItems = isElem ? ['채소 반찬 남기지 않고 먹어보기', '일주일에 한 번 고기 대신 두부 먹기', '농부 아저씨께 감사하며 먹기'] : isMid ? ['학교 채식급식의 날 적극 참여하기', '채소 위주의 샌드위치 먹어보기', '대체육(콩고기 등) 거부감 줄이기'] : ['주 1회 비건(Vegan) 라이프 실천', '육류 생산의 탄소발자국 지표 탐구', '로컬푸드 위주 저탄소 식단 구성'];
+        break;
+      case 'planting':
+        carbonPerUnit = 2.5; // 작은 화분 1개당 연간 약 2.5 kgCO2e 흡수
+        yearlyMultiplier = 1; // 연간 흡수량 기준
+        visualTheme = 'tree';
+        message = isElem ? '우리 반 교실에 초록 친구가 생겼어요! 🪴' : isMid ? '교실 속 작은 숲, 1인 1반려식물 🌿' : '교내 생태 공간 및 탄소 흡수원 확보 🌳';
+        effect = isElem ? '작은 화분 하나가 나쁜 공기를 먹고 맑은 공기를 내뿜어서 교실이 상쾌해져요.' : isMid ? '교실에 둔 실내 식물은 공기를 정화하고 탄소를 직접 흡수하는 훌륭한 산소 공장입니다.' : '단순한 온실가스 감축을 넘어 적극적인 탄소 흡수원 확보를 통해 진정한 탄소중립에 기여합니다.';
+        actionItems = isElem ? ['1인 1화분 소중히 가꾸기', '생수병, 우유팩으로 화분 만들기', '식물에게 예쁜 말 해주기'] : isMid ? ['학급 정원(플랜테리어) 만들기', '버려지는 용기로 업사이클링 화분 제작', '점심시간에 학교 화단 산책하기'] : ['교내 자투리 공간 및 옥상 녹화 캠페인', '공기정화식물 생육 및 탄소흡수량 데이터 추적', '지역사회 나무심기 봉사활동 연계'];
+        break;
+      case 'recycling':
+        carbonPerUnit = 1.5; // 고품질 재활용(투명 페트병 등) 1kg당 약 1.5 kgCO2e 감축
+        yearlyMultiplier = 40; // 주 단위 누적 시 (연 40주 학사일정)
+        visualTheme = 'earth';
+        message = isElem ? '딱지 떼고, 씻고, 착착! 분리수거 대장 🦸‍♂️' : isMid ? '라벨 떼고 찌그러뜨리기, 분리배출의 정석! ♻️' : '자원 순환율 100% 도전, 고도화된 분리수거 🔄';
+        effect = isElem ? '깨끗하게 모은 쓰레기들은 불에 타지 않고 예쁜 필통이나 가방으로 다시 태어나요.' : isMid ? '제대로 분리 배출된 자원은 소각장을 거치지 않아 유해 가스와 탄소 발생을 막아줍니다.' : '혼합 배출로 인한 폐기물 소각을 방지하여 매립장 수명을 늘리고 탄소 발생을 최소화합니다.';
+        actionItems = isElem ? ['음료수 다 먹고 물로 씻어서 버리기', '상자 테이프 떼고 버리기', '딱지 접지 않고 쫙 펴서 버리기'] : isMid ? ['투명 페트병 라벨 제거 및 분리수거', '이면지와 일반 쓰레기 철저히 구분', '재질이 섞인 쓰레기는 종량제 봉투에 버리기'] : ['플라스틱 세부 재질별 분리(PET, PP, PS) 캠페인', '종이팩/멸균팩 전용 수거함 마련 및 거점 수거', '교내 플로깅 및 자원순환 자치 동아리 활동'];
         break;
       case 'custom':
       default:
         carbonPerUnit = 1.0;
         yearlyMultiplier = 200;
         visualTheme = 'tree';
-        message = `${categoryName} 줄이기로 탄소중립 실천! 🌟`;
-        effect = `일상 속 작은 실천으로 탄소 배출을 줄이고 환경을 보호합니다.`;
-        actionItems = ['꾸준히 실천하기', '친구들에게 알리기', '새로운 목표 세우기'];
+        message = isElem ? `${categoryName} 줄이기로 지구 지키기! 🌟` : isMid ? `${categoryName} 실천으로 앞서가는 에코스쿨! 🌟` : `${categoryName} 목표 달성으로 탄소중립 실천 🌟`;
+        effect = isElem ? '일상 속 작은 실천들이 모여서 크고 건강한 숲을 만들 수 있어요.' : isMid ? '우리 반의 작은 실천으로 탄소 배출을 직접 줄이고 환경을 힙하게 보호합니다.' : '설정된 감축 행동을 정량적으로 달성하여 실질적인 기후위기 완화에 기여합니다.';
+        actionItems = isElem ? ['친구들과 실천 약속하기', '가족들에게 자랑하기', '매일매일 잊지 않기'] : isMid ? ['꾸준히 실천 인증하기', 'SNS에 에코 챌린지 공유하기', '새로운 목표 세우기'] : ['감축 성과 정량적 모니터링', '학내 캠페인 부스 운영', '지역사회 환경 활동과 연계'];
         break;
     }
 
@@ -269,6 +321,26 @@ export default function App() {
         baseValue = Number(inputs.consumptionCurrent) || 500;
         reductionTarget = Number(inputs.consumptionReduction) || 0;
         unit = '개';
+      } else if (category === 'clothing') {
+        categoryName = '자원순환 (교복/의류)';
+        baseValue = Number(inputs.clothingCurrent) || 100;
+        reductionTarget = Number(inputs.clothingReduction) || 0;
+        unit = '벌';
+      } else if (category === 'vegetarian') {
+        categoryName = '녹색급식 (저탄소 채식)';
+        baseValue = Number(inputs.vegetarianCurrent) || 100;
+        reductionTarget = Number(inputs.vegetarianReduction) || 0;
+        unit = '명';
+      } else if (category === 'planting') {
+        categoryName = '탄소 흡수원 (학교 숲/화분)';
+        baseValue = Number(inputs.plantingCurrent) || 10;
+        reductionTarget = Number(inputs.plantingReduction) || 0;
+        unit = '화분(그루)';
+      } else if (category === 'recycling') {
+        categoryName = '자원순환 (올바른 분리배출)';
+        baseValue = Number(inputs.recyclingCurrent) || 50;
+        reductionTarget = Number(inputs.recyclingReduction) || 0;
+        unit = 'kg';
       } else if (category === 'custom') {
         categoryName = inputs.customName || '사용자 지정 데이터';
         baseValue = Number(inputs.customCurrent) || 100;
@@ -417,12 +489,16 @@ export default function App() {
             <div className="grid grid-cols-2 md:grid-cols-3 gap-1 p-1 bg-gray-100 rounded-xl">
               <TabButton active={category === 'energy'} onClick={() => setCategory('energy')} icon={<Zap size={14} />} label="전력" />
               <TabButton active={category === 'temperature'} onClick={() => setCategory('temperature')} icon={<Thermometer size={14} />} label="실내온도" />
-              <TabButton active={category === 'resource'} onClick={() => setCategory('resource')} icon={<Recycle size={14} />} label="자원순환" />
-              <TabButton active={category === 'meals'} onClick={() => setCategory('meals')} icon={<Utensils size={14} />} label="녹색급식" />
-              <TabButton active={category === 'transport'} onClick={() => setCategory('transport')} icon={<Car size={14} />} label="생활/수송" />
+              <TabButton active={category === 'resource'} onClick={() => setCategory('resource')} icon={<Printer size={14} />} label="종이절약" />
+              <TabButton active={category === 'meals'} onClick={() => setCategory('meals')} icon={<Utensils size={14} />} label="잔반제로" />
+              <TabButton active={category === 'transport'} onClick={() => setCategory('transport')} icon={<Car size={14} />} label="차량등하교" />
               <TabButton active={category === 'water'} onClick={() => setCategory('water')} icon={<Droplets size={14} />} label="수자원" />
               <TabButton active={category === 'digital'} onClick={() => setCategory('digital')} icon={<Smartphone size={14} />} label="디지털" />
-              <TabButton active={category === 'consumption'} onClick={() => setCategory('consumption')} icon={<ShoppingBag size={14} />} label="친환경 소비" />
+              <TabButton active={category === 'consumption'} onClick={() => setCategory('consumption')} icon={<ShoppingBag size={14} />} label="일회용품" />
+              <TabButton active={category === 'clothing'} onClick={() => setCategory('clothing')} icon={<Shirt size={14} />} label="교복물려입기" />
+              <TabButton active={category === 'vegetarian'} onClick={() => setCategory('vegetarian')} icon={<Carrot size={14} />} label="초록식단" />
+              <TabButton active={category === 'planting'} onClick={() => setCategory('planting')} icon={<Sprout size={14} />} label="식물가꾸기" />
+              <TabButton active={category === 'recycling'} onClick={() => setCategory('recycling')} icon={<Recycle size={14} />} label="분리배출" />
               <TabButton active={category === 'custom'} onClick={() => setCategory('custom')} icon={<AlertCircle size={14} />} label="직접 입력" />
             </div>
           </div>
@@ -488,6 +564,30 @@ export default function App() {
                 <>
                   <InputField label="[1인당] 현재 주간 일회용품 사용량" name="consumptionCurrent" value={inputs.consumptionCurrent} onChange={handleInputChange} unit="개" placeholder="예: 5" />
                   <InputField label="[목표] 줄이고 싶은 일회용품 수" name="consumptionReduction" value={inputs.consumptionReduction} onChange={handleInputChange} unit="개" placeholder="예: 2" />
+                </>
+              )}
+              {category === 'clothing' && (
+                <>
+                  <InputField label="[학급당] 졸업생에게 물려받을 수 있는 교복 수" name="clothingCurrent" value={inputs.clothingCurrent} onChange={handleInputChange} unit="벌" placeholder="예: 10" />
+                  <InputField label="[목표] 올해 물려 입기에 참여할 학생 수" name="clothingReduction" value={inputs.clothingReduction} onChange={handleInputChange} unit="명(벌)" placeholder="예: 3" />
+                </>
+              )}
+              {category === 'vegetarian' && (
+                <>
+                  <InputField label="[학급당] 일반 육류 위주 급식 먹는 학생 수" name="vegetarianCurrent" value={inputs.vegetarianCurrent} onChange={handleInputChange} unit="명" placeholder="예: 30" />
+                  <InputField label="[목표] 주 1회 '채식 급식'에 동참할 학생 수" name="vegetarianReduction" value={inputs.vegetarianReduction} onChange={handleInputChange} unit="명" placeholder="예: 10" />
+                </>
+              )}
+              {category === 'planting' && (
+                <>
+                  <InputField label="[학급당] 현재 교실/화단에 있는 화분 수" name="plantingCurrent" value={inputs.plantingCurrent} onChange={handleInputChange} unit="개" placeholder="예: 10" />
+                  <InputField label="[목표] 추가로 기르거나 심을 식물 수" name="plantingReduction" value={inputs.plantingReduction} onChange={handleInputChange} unit="개" placeholder="예: 5" />
+                </>
+              )}
+              {category === 'recycling' && (
+                <>
+                  <InputField label="[학급당] 주간 발생 재활용 폐기량" name="recyclingCurrent" value={inputs.recyclingCurrent} onChange={handleInputChange} unit="kg" placeholder="예: 20" />
+                  <InputField label="[목표] 올바르게 분리배출할 재활용량" name="recyclingReduction" value={inputs.recyclingReduction} onChange={handleInputChange} unit="kg" placeholder="예: 10" />
                 </>
               )}
               {category === 'custom' && (
@@ -578,6 +678,12 @@ export default function App() {
             </>
           )}
         </button>
+
+        {/* Footer / Contact Info */}
+        <div className="mt-6 pt-4 border-t border-gray-100 flex flex-col gap-1 text-center text-[11px] text-gray-400 pb-2">
+          <p>문의: hjuni@korea.kr</p>
+          <p>제작자: 수도권대기환경청 신현준 연구사</p>
+        </div>
       </div>
 
       {/* Right Panel (Preview) */}
@@ -935,6 +1041,26 @@ export default function App() {
                       <div className="font-bold text-gray-900 mb-1 flex items-center gap-1.5"><ShoppingBag className="w-3.5 h-3.5 text-pink-500"/> 플라스틱 (PET)</div>
                       <div className="text-green-600 font-mono font-bold">0.086 kgCO₂ / 개</div>
                       <div className="text-[10px] text-gray-400 mt-0.5">* 출처: KEITI (2.15 kgCO₂/kg × 0.04kg/개)</div>
+                    </div>
+                    <div className="bg-white p-3 rounded-lg border border-gray-200 shadow-sm">
+                      <div className="font-bold text-gray-900 mb-1 flex items-center gap-1.5"><Shirt className="w-3.5 h-3.5 text-indigo-500"/> 자원순환 (의류)</div>
+                      <div className="text-green-600 font-mono font-bold">15 kgCO₂ / 벌</div>
+                      <div className="text-[10px] text-gray-400 mt-0.5">* 일반 의류 1벌 생산 기준 추정치</div>
+                    </div>
+                    <div className="bg-white p-3 rounded-lg border border-gray-200 shadow-sm">
+                      <div className="font-bold text-gray-900 mb-1 flex items-center gap-1.5"><Carrot className="w-3.5 h-3.5 text-emerald-500"/> 채식 식단 (저탄소)</div>
+                      <div className="text-green-600 font-mono font-bold">1.5 kgCO₂ / 기 (명)</div>
+                      <div className="text-[10px] text-gray-400 mt-0.5">* 육류 위주 식단 대비 1끼 절감량</div>
+                    </div>
+                    <div className="bg-white p-3 rounded-lg border border-gray-200 shadow-sm">
+                      <div className="font-bold text-gray-900 mb-1 flex items-center gap-1.5"><Sprout className="w-3.5 h-3.5 text-green-600"/> 탄소 흡수 (식물)</div>
+                      <div className="text-green-600 font-mono font-bold">2.5 kgCO₂ / 연간 (화분)</div>
+                      <div className="text-[10px] text-gray-400 mt-0.5">* 소형 반려식물/화분 기준 대략 추정치</div>
+                    </div>
+                    <div className="bg-white p-3 rounded-lg border border-gray-200 shadow-sm">
+                      <div className="font-bold text-gray-900 mb-1 flex items-center gap-1.5"><Recycle className="w-3.5 h-3.5 text-blue-500"/> 자원순환 (올바른 분리배출)</div>
+                      <div className="text-green-600 font-mono font-bold">1.5 kgCO₂ / kg</div>
+                      <div className="text-[10px] text-gray-400 mt-0.5">* 고품질 재활용(투명 페트병 등) 소각/매립 회피 기준</div>
                     </div>
                   </div>
                 </section>
