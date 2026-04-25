@@ -30,26 +30,9 @@ export default function App() {
   const [result, setResult] = useState<GeneratedResult | null>(null);
   const [showInfoModal, setShowInfoModal] = useState(false);
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [isPledged, setIsPledged] = useState(false);
   const resultRef = useRef<HTMLDivElement>(null);
   const captureRef = useRef<HTMLDivElement>(null); // For image export
-
-  useEffect(() => {
-    const handleBeforeInstallPrompt = (e: Event) => {
-      e.preventDefault();
-      setDeferredPrompt(e);
-    };
-    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-    return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-  }, []);
-
-  const handleInstallClick = async () => {
-    if (!deferredPrompt) return;
-    deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
-    if (outcome === 'accepted') {
-      setDeferredPrompt(null);
-    }
-  };
 
   useEffect(() => {
     if (result && resultRef.current) {
@@ -58,6 +41,7 @@ export default function App() {
   }, [result]);
 
   const [inputs, setInputs] = useState({
+    userName: '', // Add userName
     energyCurrent: '',
     energyReduction: '',
     energyTempCurrent: '',
@@ -94,6 +78,7 @@ export default function App() {
 
   const fillSampleData = () => {
     setInputs({
+      userName: '3학년 1반 OOO',
       energyCurrent: '400',
       energyReduction: '40',
       energyTempCurrent: '24',
@@ -260,7 +245,7 @@ export default function App() {
       message,
       effect,
       currentValue: baseValue,
-      targetValue: baseValue - reductionTarget,
+      targetValue: category === 'planting' ? baseValue + reductionTarget : baseValue - reductionTarget,
       unit,
       visualTheme,
       carbonReduction: Number(carbonReduction.toFixed(2)),
@@ -270,7 +255,26 @@ export default function App() {
     };
   };
 
+  const handlePledge = () => {
+    setIsPledged(true);
+    confetti({
+      particleCount: 150,
+      spread: 80,
+      origin: { y: 0.6 },
+      colors: ['#EF4444', '#10B981', '#3B82F6', '#F59E0B'],
+      zIndex: 1000
+    });
+    
+    // Scroll the capture area into view so mobile users can see the stamp
+    if (captureRef.current) {
+      setTimeout(() => {
+        captureRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 100);
+    }
+  };
+
   const handleGenerate = async () => {
+    setIsPledged(false);
     setLoading(true);
     setError(null);
     try {
@@ -421,6 +425,10 @@ export default function App() {
     }
   };
 
+  const handlePrint = () => {
+    window.print();
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col md:flex-row font-sans">
       {/* Left Panel */}
@@ -436,16 +444,6 @@ export default function App() {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            {deferredPrompt && (
-              <button
-                onClick={handleInstallClick}
-                className="flex items-center gap-1.5 px-3 py-1.5 bg-green-100 text-green-700 font-bold rounded-full hover:bg-green-200 transition-colors text-sm"
-                title="앱 설치하기"
-              >
-                <Download className="w-4 h-4" />
-                <span className="hidden sm:inline">앱 설치</span>
-              </button>
-            )}
             <button 
               onClick={() => setShowInfoModal(true)}
               className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-full transition-colors"
@@ -518,6 +516,17 @@ export default function App() {
               </button>
             </div>
             <div className="bg-white p-3 rounded-xl border border-gray-200 shadow-sm space-y-4">
+              <div className="space-y-1 pb-2 border-b border-gray-100">
+                <label className="text-xs font-bold text-gray-600">이름 / 학급명 (선택)</label>
+                <input
+                  type="text"
+                  name="userName"
+                  value={inputs.userName}
+                  onChange={handleInputChange}
+                  placeholder="예: 3학년 1반, 김환경"
+                  className="w-full px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all text-sm font-medium text-gray-900 placeholder:text-gray-400"
+                />
+              </div>
               {category === 'energy' && (
                 <>
                   <InputField label="[학급당] 현재 월간 전력 사용량" name="energyCurrent" value={inputs.energyCurrent} onChange={handleInputChange} unit="kWh" placeholder="예: 400" />
@@ -756,6 +765,9 @@ export default function App() {
                     }`}
                     style={{ wordBreak: 'keep-all' }}
                   >
+                    {inputs.userName && (
+                      <span className={`block text-sm md:text-xl font-bold mb-2 ${theme === 'chalkboard' ? 'text-yellow-300' : theme === 'forest' ? 'text-green-300' : 'text-green-600'}`}>{inputs.userName}의</span>
+                    )}
                     {result.message}
                   </h2>
 
@@ -831,10 +843,29 @@ export default function App() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 1.0 }}
-                    className={`w-full max-w-2xl p-3 md:p-4 rounded-2xl backdrop-blur-md shadow-xl text-left ${
+                    className={`relative w-full max-w-2xl p-3 md:p-4 rounded-2xl backdrop-blur-md shadow-xl text-left overflow-hidden ${
                       theme === 'chalkboard' || theme === 'forest' ? 'bg-white/10 border border-white/20' : 'bg-white/60 border border-white/50'
                     }`}
                   >
+                    <AnimatePresence>
+                      {isPledged && (
+                        <motion.div
+                          initial={{ opacity: 0, scale: 3, rotate: -20 }}
+                          animate={{ opacity: 1, scale: 1, rotate: -5 }}
+                          transition={{ type: 'spring', damping: 15, stiffness: 300 }}
+                          className="absolute top-1/2 -translate-y-1/2 right-4 md:right-8 pointer-events-none z-50 flex items-center justify-center opacity-80"
+                        >
+                          <div className="w-16 h-16 md:w-20 md:h-20 border-[3px] md:border-[4px] border-red-500 rounded-full flex items-center justify-center rotate-[-15deg] shadow-xl relative bg-white/30 backdrop-blur-sm">
+                            <div className="absolute inset-1 border-[1.5px] md:border-2 border-red-500 rounded-full border-dashed" />
+                            <div className="text-center">
+                              <div className="text-red-500 font-black text-sm md:text-base tracking-tighter leading-none font-serif pt-1">서약</div>
+                              <div className="text-red-500 font-bold text-xs md:text-sm font-serif">완료</div>
+                            </div>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+
                     <h3 className={`text-sm md:text-base font-bold mb-2 flex items-center gap-2 ${
                       theme === 'chalkboard' ? 'text-yellow-300' : theme === 'forest' ? 'text-green-300' : 'text-blue-800'
                     }`}>
@@ -934,25 +965,38 @@ export default function App() {
           <AnimatePresence>
             {result && !error && (
               <motion.div
+                data-html2canvas-ignore="true"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 1.5 }}
-                className="mt-2 flex gap-2 md:gap-4 print:hidden"
+                className="mt-6 flex flex-col items-center gap-3 print:hidden z-20 relative"
               >
-                <button
-                  onClick={handleDownload}
-                  className="flex items-center gap-2 px-4 py-2 bg-white text-gray-800 font-bold rounded-full shadow-lg border border-gray-200 hover:bg-gray-50 hover:shadow-xl transition-all active:scale-95 text-xs md:text-sm"
-                >
-                  <Download className="w-4 h-4 text-blue-600" />
-                  이미지로 저장하기
-                </button>
-                <button
-                  onClick={() => window.print()}
-                  className="flex items-center gap-2 px-4 py-2 bg-white text-gray-800 font-bold rounded-full shadow-lg border border-gray-200 hover:bg-gray-50 hover:shadow-xl transition-all active:scale-95 text-xs md:text-sm"
-                >
-                  <Printer className="w-4 h-4 text-green-600" />
-                  인쇄하기
-                </button>
+                {!isPledged ? (
+                  <button
+                    onClick={handlePledge}
+                    className="flex items-center justify-center gap-2 px-6 py-3 bg-red-500 text-white font-black rounded-full shadow-lg hover:bg-red-600 hover:shadow-xl transition-all active:scale-95 text-sm md:text-base border-2 border-red-400 w-full md:w-auto"
+                  >
+                    <CheckCircle2 className="w-5 h-5" />
+                    나는 실천을 약속합니다! 🙋‍♀️
+                  </button>
+                ) : (
+                  <div className="flex flex-wrap justify-center gap-2 md:gap-4">
+                    <button
+                      onClick={handleDownload}
+                      className="flex items-center gap-2 px-4 py-2 bg-white text-gray-800 font-bold rounded-full shadow-lg border border-gray-200 hover:bg-gray-50 hover:shadow-xl transition-all active:scale-95 text-xs md:text-sm"
+                    >
+                      <Download className="w-4 h-4 text-blue-600" />
+                      이미지로 저장하기
+                    </button>
+                    <button
+                      onClick={() => window.print()}
+                      className="flex items-center gap-2 px-4 py-2 bg-white text-gray-800 font-bold rounded-full shadow-lg border border-gray-200 hover:bg-gray-50 hover:shadow-xl transition-all active:scale-95 text-xs md:text-sm"
+                    >
+                      <Printer className="w-4 h-4 text-green-600" />
+                      인쇄하기
+                    </button>
+                  </div>
+                )}
               </motion.div>
             )}
           </AnimatePresence>
@@ -1001,66 +1045,149 @@ export default function App() {
                     <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
                     항목별 탄소 배출 계수 (국가 표준 및 LCA 기반)
                   </h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <div className="bg-white p-3 rounded-lg border border-gray-200 shadow-sm">
-                      <div className="font-bold text-gray-900 mb-1 flex items-center gap-1.5"><Zap className="w-3.5 h-3.5 text-yellow-500"/> 전력 (에너지)</div>
-                      <div className="text-green-600 font-mono font-bold">0.4781 kgCO₂ / kWh</div>
-                      <div className="text-[10px] text-gray-400 mt-0.5">* 출처: GIR (2024)</div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="bg-white relative overflow-hidden p-4 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow flex items-center gap-4 group">
+                      <Zap className="w-24 h-24 absolute -right-4 -bottom-4 text-yellow-500/5 group-hover:scale-110 transition-transform" />
+                      <div className="p-3 bg-yellow-50 rounded-2xl shrink-0">
+                        <Zap className="w-6 h-6 text-yellow-500" />
+                      </div>
+                      <div className="relative z-10">
+                        <div className="font-bold text-gray-900 mb-0.5">전력 (에너지)</div>
+                        <div className="text-green-600 font-mono font-bold text-sm">0.4781 kgCO₂ / kWh</div>
+                        <div className="text-[10px] text-gray-500 mt-1">* 출처: GIR (2024)</div>
+                      </div>
                     </div>
-                    <div className="bg-white p-3 rounded-lg border border-gray-200 shadow-sm">
-                      <div className="font-bold text-gray-900 mb-1 flex items-center gap-1.5"><Thermometer className="w-3.5 h-3.5 text-red-500"/> 실내 온도 조절</div>
-                      <div className="text-green-600 font-mono font-bold">0.5 kgCO₂ / ℃ (일)</div>
-                      <div className="text-[10px] text-gray-400 mt-0.5">* 학급당 하루 절감 추정치</div>
+
+                    <div className="bg-white relative overflow-hidden p-4 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow flex items-center gap-4 group">
+                      <Thermometer className="w-24 h-24 absolute -right-4 -bottom-4 text-red-500/5 group-hover:scale-110 transition-transform" />
+                      <div className="p-3 bg-red-50 rounded-2xl shrink-0">
+                        <Thermometer className="w-6 h-6 text-red-500" />
+                      </div>
+                      <div className="relative z-10">
+                        <div className="font-bold text-gray-900 mb-0.5">실내 온도 조절</div>
+                        <div className="text-green-600 font-mono font-bold text-sm">0.5 kgCO₂ / ℃ (일)</div>
+                        <div className="text-[10px] text-gray-500 mt-1">* 학급당 하루 절감 추정치</div>
+                      </div>
                     </div>
-                    <div className="bg-white p-3 rounded-lg border border-gray-200 shadow-sm">
-                      <div className="font-bold text-gray-900 mb-1 flex items-center gap-1.5"><Recycle className="w-3.5 h-3.5 text-green-500"/> 자원순환 (종이)</div>
-                      <div className="text-green-600 font-mono font-bold">0.00525 kgCO₂ / 장</div>
-                      <div className="text-[10px] text-gray-400 mt-0.5">* A4 용지 1장(약 5g) 기준</div>
+
+                    <div className="bg-white relative overflow-hidden p-4 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow flex items-center gap-4 group">
+                      <Printer className="w-24 h-24 absolute -right-4 -bottom-4 text-green-500/5 group-hover:scale-110 transition-transform" />
+                      <div className="p-3 bg-green-50 rounded-2xl shrink-0">
+                        <Printer className="w-6 h-6 text-green-500" />
+                      </div>
+                      <div className="relative z-10">
+                        <div className="font-bold text-gray-900 mb-0.5">자원순환 (종이)</div>
+                        <div className="text-green-600 font-mono font-bold text-sm">0.00525 kgCO₂ / 장</div>
+                        <div className="text-[10px] text-gray-500 mt-1">* A4 용지 1장(약 5g) 기준</div>
+                      </div>
                     </div>
-                    <div className="bg-white p-3 rounded-lg border border-gray-200 shadow-sm">
-                      <div className="font-bold text-gray-900 mb-1 flex items-center gap-1.5"><Utensils className="w-3.5 h-3.5 text-orange-500"/> 음식물 쓰레기 (잔반)</div>
-                      <div className="text-green-600 font-mono font-bold">0.00165 kgCO₂ / g</div>
-                      <div className="text-[10px] text-gray-400 mt-0.5">* 출처: LCA Analysis (1.65 kgCO₂/kg)</div>
+
+                    <div className="bg-white relative overflow-hidden p-4 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow flex items-center gap-4 group">
+                      <Utensils className="w-24 h-24 absolute -right-4 -bottom-4 text-orange-500/5 group-hover:scale-110 transition-transform" />
+                      <div className="p-3 bg-orange-50 rounded-2xl shrink-0">
+                        <Utensils className="w-6 h-6 text-orange-500" />
+                      </div>
+                      <div className="relative z-10">
+                        <div className="font-bold text-gray-900 mb-0.5">음식물 쓰레기 (잔반)</div>
+                        <div className="text-green-600 font-mono font-bold text-sm">0.00165 kgCO₂ / g</div>
+                        <div className="text-[10px] text-gray-500 mt-1">* 출처: LCA (1.65 kgCO₂/kg)</div>
+                      </div>
                     </div>
-                    <div className="bg-white p-3 rounded-lg border border-gray-200 shadow-sm">
-                      <div className="font-bold text-gray-900 mb-1 flex items-center gap-1.5"><Car className="w-3.5 h-3.5 text-gray-500"/> 생활/수송 (승용차)</div>
-                      <div className="text-green-600 font-mono font-bold">1.05 kgCO₂ / 명 (일)</div>
-                      <div className="text-[10px] text-gray-400 mt-0.5">* 왕복 5km 기준 (0.21 kgCO₂/km)</div>
+
+                    <div className="bg-white relative overflow-hidden p-4 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow flex items-center gap-4 group">
+                      <Car className="w-24 h-24 absolute -right-4 -bottom-4 text-gray-500/5 group-hover:scale-110 transition-transform" />
+                      <div className="p-3 bg-gray-50 rounded-2xl shrink-0">
+                        <Car className="w-6 h-6 text-gray-500" />
+                      </div>
+                      <div className="relative z-10">
+                        <div className="font-bold text-gray-900 mb-0.5">생활/수송 (승용차)</div>
+                        <div className="text-green-600 font-mono font-bold text-sm">1.05 kgCO₂ / 명 (일)</div>
+                        <div className="text-[10px] text-gray-500 mt-1">* 왕복 5km 기준 (0.21/km)</div>
+                      </div>
                     </div>
-                    <div className="bg-white p-3 rounded-lg border border-gray-200 shadow-sm">
-                      <div className="font-bold text-gray-900 mb-1 flex items-center gap-1.5"><Droplets className="w-3.5 h-3.5 text-blue-400"/> 수자원 (수도)</div>
-                      <div className="text-green-600 font-mono font-bold">0.332 kgCO₂ / 톤(m³)</div>
-                      <div className="text-[10px] text-gray-400 mt-0.5">* 출처: ME/KEITI (LCA)</div>
+
+                    <div className="bg-white relative overflow-hidden p-4 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow flex items-center gap-4 group">
+                      <Droplets className="w-24 h-24 absolute -right-4 -bottom-4 text-blue-500/5 group-hover:scale-110 transition-transform" />
+                      <div className="p-3 bg-blue-50 rounded-2xl shrink-0">
+                        <Droplets className="w-6 h-6 text-blue-400" />
+                      </div>
+                      <div className="relative z-10">
+                        <div className="font-bold text-gray-900 mb-0.5">수자원 (수도)</div>
+                        <div className="text-green-600 font-mono font-bold text-sm">0.332 kgCO₂ / 톤(m³)</div>
+                        <div className="text-[10px] text-gray-500 mt-1">* 출처: ME/KEITI (LCA)</div>
+                      </div>
                     </div>
-                    <div className="bg-white p-3 rounded-lg border border-gray-200 shadow-sm">
-                      <div className="font-bold text-gray-900 mb-1 flex items-center gap-1.5"><Smartphone className="w-3.5 h-3.5 text-purple-500"/> 디지털 (이메일)</div>
-                      <div className="text-green-600 font-mono font-bold">0.004 kgCO₂ / 건</div>
-                      <div className="text-[10px] text-gray-400 mt-0.5">* 출처: Mike Berners-Lee</div>
+
+                    <div className="bg-white relative overflow-hidden p-4 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow flex items-center gap-4 group">
+                      <Smartphone className="w-24 h-24 absolute -right-4 -bottom-4 text-purple-500/5 group-hover:scale-110 transition-transform" />
+                      <div className="p-3 bg-purple-50 rounded-2xl shrink-0">
+                        <Smartphone className="w-6 h-6 text-purple-500" />
+                      </div>
+                      <div className="relative z-10">
+                        <div className="font-bold text-gray-900 mb-0.5">디지털 (이메일/앱)</div>
+                        <div className="text-green-600 font-mono font-bold text-sm">0.004 kgCO₂ / 건</div>
+                        <div className="text-[10px] text-gray-500 mt-1">* 출처: Mike Berners-Lee</div>
+                      </div>
                     </div>
-                    <div className="bg-white p-3 rounded-lg border border-gray-200 shadow-sm">
-                      <div className="font-bold text-gray-900 mb-1 flex items-center gap-1.5"><ShoppingBag className="w-3.5 h-3.5 text-pink-500"/> 플라스틱 (PET)</div>
-                      <div className="text-green-600 font-mono font-bold">0.086 kgCO₂ / 개</div>
-                      <div className="text-[10px] text-gray-400 mt-0.5">* 출처: KEITI (2.15 kgCO₂/kg × 0.04kg/개)</div>
+
+                    <div className="bg-white relative overflow-hidden p-4 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow flex items-center gap-4 group">
+                      <ShoppingBag className="w-24 h-24 absolute -right-4 -bottom-4 text-pink-500/5 group-hover:scale-110 transition-transform" />
+                      <div className="p-3 bg-pink-50 rounded-2xl shrink-0">
+                        <ShoppingBag className="w-6 h-6 text-pink-500" />
+                      </div>
+                      <div className="relative z-10">
+                        <div className="font-bold text-gray-900 mb-0.5">플라스틱 (일회용품)</div>
+                        <div className="text-green-600 font-mono font-bold text-sm">0.086 kgCO₂ / 개</div>
+                        <div className="text-[10px] text-gray-500 mt-1">* 출처: KEITI</div>
+                      </div>
                     </div>
-                    <div className="bg-white p-3 rounded-lg border border-gray-200 shadow-sm">
-                      <div className="font-bold text-gray-900 mb-1 flex items-center gap-1.5"><Shirt className="w-3.5 h-3.5 text-indigo-500"/> 자원순환 (의류)</div>
-                      <div className="text-green-600 font-mono font-bold">15 kgCO₂ / 벌</div>
-                      <div className="text-[10px] text-gray-400 mt-0.5">* 일반 의류 1벌 생산 기준 추정치</div>
+
+                    <div className="bg-white relative overflow-hidden p-4 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow flex items-center gap-4 group">
+                      <Shirt className="w-24 h-24 absolute -right-4 -bottom-4 text-indigo-500/5 group-hover:scale-110 transition-transform" />
+                      <div className="p-3 bg-indigo-50 rounded-2xl shrink-0">
+                        <Shirt className="w-6 h-6 text-indigo-500" />
+                      </div>
+                      <div className="relative z-10">
+                        <div className="font-bold text-gray-900 mb-0.5">의류 (교복 대물림)</div>
+                        <div className="text-green-600 font-mono font-bold text-sm">15 kgCO₂ / 벌</div>
+                        <div className="text-[10px] text-gray-500 mt-1">* 일반 의류 1벌 생산 기준</div>
+                      </div>
                     </div>
-                    <div className="bg-white p-3 rounded-lg border border-gray-200 shadow-sm">
-                      <div className="font-bold text-gray-900 mb-1 flex items-center gap-1.5"><Carrot className="w-3.5 h-3.5 text-emerald-500"/> 채식 식단 (저탄소)</div>
-                      <div className="text-green-600 font-mono font-bold">1.5 kgCO₂ / 기 (명)</div>
-                      <div className="text-[10px] text-gray-400 mt-0.5">* 육류 위주 식단 대비 1끼 절감량</div>
+
+                    <div className="bg-white relative overflow-hidden p-4 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow flex items-center gap-4 group">
+                      <Carrot className="w-24 h-24 absolute -right-4 -bottom-4 text-emerald-500/5 group-hover:scale-110 transition-transform" />
+                      <div className="p-3 bg-emerald-50 rounded-2xl shrink-0">
+                        <Carrot className="w-6 h-6 text-emerald-500" />
+                      </div>
+                      <div className="relative z-10">
+                        <div className="font-bold text-gray-900 mb-0.5">채식 식단 (녹색급식)</div>
+                        <div className="text-green-600 font-mono font-bold text-sm">1.5 kgCO₂ / 기 (명)</div>
+                        <div className="text-[10px] text-gray-500 mt-1">* 육류 식단 대비 1끼 절감량</div>
+                      </div>
                     </div>
-                    <div className="bg-white p-3 rounded-lg border border-gray-200 shadow-sm">
-                      <div className="font-bold text-gray-900 mb-1 flex items-center gap-1.5"><Sprout className="w-3.5 h-3.5 text-green-600"/> 탄소 흡수 (식물)</div>
-                      <div className="text-green-600 font-mono font-bold">2.5 kgCO₂ / 연간 (화분)</div>
-                      <div className="text-[10px] text-gray-400 mt-0.5">* 소형 반려식물/화분 기준 대략 추정치</div>
+
+                    <div className="bg-white relative overflow-hidden p-4 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow flex items-center gap-4 group">
+                      <Sprout className="w-24 h-24 absolute -right-4 -bottom-4 text-green-600/5 group-hover:scale-110 transition-transform" />
+                      <div className="p-3 bg-green-50 rounded-2xl shrink-0">
+                        <Sprout className="w-6 h-6 text-green-600" />
+                      </div>
+                      <div className="relative z-10">
+                        <div className="font-bold text-gray-900 mb-0.5">탄소 흡수 (식물가꾸기)</div>
+                        <div className="text-green-600 font-mono font-bold text-sm">2.5 kgCO₂ / 화분(연)</div>
+                        <div className="text-[10px] text-gray-500 mt-1">* 소형 반려식물 기준 추정치</div>
+                      </div>
                     </div>
-                    <div className="bg-white p-3 rounded-lg border border-gray-200 shadow-sm">
-                      <div className="font-bold text-gray-900 mb-1 flex items-center gap-1.5"><Recycle className="w-3.5 h-3.5 text-blue-500"/> 자원순환 (올바른 분리배출)</div>
-                      <div className="text-green-600 font-mono font-bold">1.5 kgCO₂ / kg</div>
-                      <div className="text-[10px] text-gray-400 mt-0.5">* 고품질 재활용(투명 페트병 등) 소각/매립 회피 기준</div>
+
+                    <div className="bg-white relative overflow-hidden p-4 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow flex items-center gap-4 group">
+                      <Recycle className="w-24 h-24 absolute -right-4 -bottom-4 text-blue-500/5 group-hover:scale-110 transition-transform" />
+                      <div className="p-3 bg-blue-50 rounded-2xl shrink-0">
+                        <Recycle className="w-6 h-6 text-blue-500" />
+                      </div>
+                      <div className="relative z-10">
+                        <div className="font-bold text-gray-900 mb-0.5">자원순환 (분리배출)</div>
+                        <div className="text-green-600 font-mono font-bold text-sm">1.5 kgCO₂ / kg</div>
+                        <div className="text-[10px] text-gray-500 mt-1">* 고품질 재활용 소각 회피 기준</div>
+                      </div>
                     </div>
                   </div>
                 </section>
