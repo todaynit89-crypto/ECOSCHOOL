@@ -23,6 +23,7 @@
     "puppeteer": "^24.42.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "regenerator-runtime": "^0.14.1",
     "vite": "^6.2.0"
   },
   "devDependencies": {

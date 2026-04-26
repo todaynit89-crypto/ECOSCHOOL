@@ -1,19 +1,12 @@
-const CACHE_NAME = 'ecoschool-v1';
-const ASSETS = [
-  '/',
-  '/index.html',
-  '/icon.svg',
-  '/manifest.json'
-];
-
+// Service Worker cleanup script
 self.addEventListener('install', (e) => {
-  e.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS))
-  );
+  self.skipWaiting();
 });
 
-self.addEventListener('fetch', (e) => {
-  e.respondWith(
-    caches.match(e.request).then((response) => response || fetch(e.request))
+self.addEventListener('activate', (e) => {
+  e.waitUntil(
+    caches.keys().then((names) => {
+      return Promise.all(names.map(name => caches.delete(name)));
+    }).then(() => self.clients.claim())
   );
 });

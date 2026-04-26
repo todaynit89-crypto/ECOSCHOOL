@@ -430,9 +430,9 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col md:flex-row font-sans">
+    <div className="min-h-[100dvh] bg-gray-50 flex flex-col md:flex-row font-sans overflow-x-hidden">
       {/* Left Panel */}
-      <div className="w-full md:w-[350px] lg:w-[400px] bg-white border-r border-gray-200 p-4 flex flex-col md:h-screen overflow-y-auto shadow-xl z-10 shrink-0 print:hidden">
+      <div className="w-full md:w-[350px] lg:w-[400px] bg-white border-r border-gray-200 p-4 flex flex-col md:h-screen overflow-y-auto shadow-xl z-20 shrink-0 print:hidden">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <div className="bg-green-100 p-1.5 rounded-lg">
@@ -696,12 +696,12 @@ export default function App() {
       </div>
 
       {/* Right Panel (Preview) */}
-      <div ref={resultRef} className="flex-1 bg-gray-100 flex flex-col min-h-screen md:h-screen md:overflow-hidden print:h-auto print:overflow-visible">
+      <div ref={resultRef} className="flex-1 bg-gray-100 flex flex-col min-h-[500px] md:min-h-dvh md:h-dvh md:overflow-hidden print:h-auto print:overflow-visible">
         {/* Board Area */}
-        <div className="flex-1 flex flex-col items-center justify-center w-full p-2 md:p-4 overflow-y-auto print:overflow-visible">
+        <div className="flex-1 flex flex-col items-center justify-start md:justify-center w-full p-2 md:p-4 overflow-y-auto overflow-x-hidden print:overflow-visible custom-scrollbar">
           <div
             ref={captureRef}
-            className={`relative w-full max-w-5xl min-h-[300px] md:min-h-[60%] rounded-3xl shadow-2xl overflow-hidden flex flex-col items-center justify-center p-4 md:p-6 transition-all duration-700 my-auto print:shadow-none print:my-0 ${
+            className={`relative w-full max-w-5xl min-h-[350px] md:min-h-[60%] rounded-3xl shadow-2xl overflow-hidden flex flex-col items-center justify-center p-4 md:p-6 transition-all duration-700 my-4 md:my-auto print:shadow-none print:my-0 shrink-0 ${
               theme === 'chalkboard'
                 ? 'bg-[#2A3B2C] border-[6px] md:border-[12px] border-[#5C4033] shadow-[inset_0_0_100px_rgba(0,0,0,0.5)]'
                 : theme === 'forest'

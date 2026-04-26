@@ -11,7 +11,10 @@ export default defineConfig(({mode}) => {
       react(), 
       tailwindcss(),
       legacy({
-        targets: ['defaults', 'not IE 11', 'iOS >= 12']
+        targets: ['defaults', 'not IE 11', 'iOS >= 12'],
+        additionalLegacyPolyfills: ['regenerator-runtime/runtime'],
+        renderLegacyChunks: true,
+        modernPolyfills: true
       })
     ],
     build: {
