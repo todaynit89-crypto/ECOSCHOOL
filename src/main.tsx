@@ -3,6 +3,15 @@ import {createRoot} from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
 
+// Force cleanup any old service workers
+if (typeof navigator !== 'undefined' && 'serviceWorker' in navigator) {
+  navigator.serviceWorker.getRegistrations().then((registrations) => {
+    for (const registration of registrations) {
+      registration.unregister();
+    }
+  }).catch(err => console.log('SW unregistration failed:', err));
+}
+
 window.addEventListener('error', (event) => {
   const root = document.getElementById('root');
   if (root && root.innerHTML === '') {

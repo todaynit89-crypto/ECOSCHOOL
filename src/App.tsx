@@ -698,10 +698,10 @@ export default function App() {
       {/* Right Panel (Preview) */}
       <div ref={resultRef} className="flex-1 bg-gray-100 flex flex-col min-h-[500px] md:min-h-dvh md:h-dvh md:overflow-hidden print:h-auto print:overflow-visible">
         {/* Board Area */}
-        <div className="flex-1 flex flex-col items-center justify-start md:justify-center w-full p-2 md:p-4 overflow-y-auto overflow-x-hidden print:overflow-visible custom-scrollbar">
+        <div className="flex-1 flex flex-col items-center justify-start md:justify-center w-full p-4 md:p-8 overflow-y-auto overflow-x-hidden print:overflow-visible custom-scrollbar">
           <div
             ref={captureRef}
-            className={`relative w-full max-w-5xl min-h-[350px] md:min-h-[60%] rounded-3xl shadow-2xl overflow-hidden flex flex-col items-center justify-center p-4 md:p-6 transition-all duration-700 my-4 md:my-auto print:shadow-none print:my-0 shrink-0 ${
+            className={`relative w-full max-w-5xl min-h-[400px] md:min-h-[60%] rounded-3xl shadow-2xl overflow-hidden flex flex-col items-center justify-center p-6 md:p-10 transition-all duration-700 mt-4 mb-10 md:my-0 shrink-0 ${
               theme === 'chalkboard'
                 ? 'bg-[#2A3B2C] border-[6px] md:border-[12px] border-[#5C4033] shadow-[inset_0_0_100px_rgba(0,0,0,0.5)]'
                 : theme === 'forest'
