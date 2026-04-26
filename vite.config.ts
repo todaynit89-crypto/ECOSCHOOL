@@ -7,9 +7,6 @@ export default defineConfig(({mode}) => {
   const env = loadEnv(mode, '.', '');
   return {
     plugins: [react(), tailwindcss()],
-    build: {
-      target: 'es2015',
-    },
     resolve: {
       alias: {
         '@': path.resolve(__dirname, '.'),
