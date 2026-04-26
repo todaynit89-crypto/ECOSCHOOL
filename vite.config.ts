@@ -14,6 +14,10 @@ export default defineConfig(({mode}) => {
         targets: ['defaults', 'not IE 11', 'iOS >= 12']
       })
     ],
+    build: {
+      target: 'es2015',
+      cssTarget: 'chrome61',
+    },
     resolve: {
       alias: {
         '@': path.resolve(__dirname, '.'),
